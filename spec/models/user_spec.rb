@@ -107,8 +107,7 @@ describe User do
     end
 
     it "sends an email to user" do
-      @user.expire
-      ActionMailer::Base.deliveries.last.to.should == [@user.email]
+      expect { @user.expire }.to change(ExpirationEmailWorker.jobs, :size).by(1)
     end
 
   end
