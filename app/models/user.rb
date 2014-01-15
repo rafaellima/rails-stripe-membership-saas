@@ -49,13 +49,7 @@ class User < ActiveRecord::Base
         )
       end
     else
-      customer = Stripe::Customer.retrieve(customer_id)
-      if stripe_token.present?
-        customer.card = stripe_token
-      end
-      customer.email = email
-      customer.description = name
-      customer.save
+      UpdateCustomerWorker.perform_async(id, stripe_token)
     end
     self.last_4_digits = customer.cards.data.first["last4"]
     self.customer_id = customer.id
