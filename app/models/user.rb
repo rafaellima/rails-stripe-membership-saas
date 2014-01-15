@@ -71,9 +71,7 @@ class User < ActiveRecord::Base
     unless customer_id.nil?
       customer = Stripe::Customer.retrieve(customer_id)
       unless customer.nil? or customer.respond_to?('deleted')
-        if customer.subscription.status == 'active'
-          customer.cancel_subscription
-        end
+        CancelSubscriptionWorker.perform_async(customer_id)
       end
     end
   rescue Stripe::StripeError => e
